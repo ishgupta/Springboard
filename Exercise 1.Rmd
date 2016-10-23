@@ -1,0 +1,119 @@
+---
+title: "Exercise 1"
+author: "Ish Gupta"
+date: "October 23, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Wrangling Exercise 1: Basic Data Manipulation
+
+ This exercise is on a toy data set showing product purchases from an electronics store. While the data set is small and simple, it still illustrates many of the challenges you have to address in real-world data wrangling! The data set and exercise are inspired by [this blog post](http://d3-media.blogspot.nl/2013/11/how-to-refine-your-data.html).
+ 
+* There data set comprises of four brands: Philips, Akzo, Van Houten and Unilever. However, there are many different spellings and capitalizations of those names!
+
+* The product code and number are combined in one column, separated by a hyphen.
+
+## Exercise
+Using R, clean this data set to make it easier to visualize and analyze. Specifically, these are the tasks you need to do:
+
+### 1. Load the data in RStudio
+Save the data set as a CSV file called refine_original.csv and load it in RStudio into a data frame.
+
+```{r, message = FALSE}
+brand_data <- read.csv("refine.csv", header = TRUE)
+
+library(dplyr)
+glimpse(brand_data)
+
+```
+
+###  2.  Clean up brand names
+
+Clean up the 'company' column, so all of the misspellings of the brand names are standardized. For example, you can transform the values in the column to be: philips, akzo, van houten and unilever (all lowercase).
+
+```{r}
+
+brand_data$company <- tolower(brand_data$company)
+unique(brand_data$company)
+
+brand_data$company <- ifelse(brand_data$company %in% c("phillips", "philips", "phllips", "phillps", "fillips", "phlips"), "philips", brand_data$company)
+  
+brand_data$company <- ifelse(brand_data$company %in% c("akzo", "akz0", "ak zo"), "akzo", brand_data$company)
+
+brand_data$company <- ifelse(brand_data$company %in% c("unilver", "unilever"), "unilever", brand_data$company)
+    
+unique(brand_data$company)
+```
+
+### 3. Separate product code and number
+
+```{r, message = FALSE}
+library(tidyr)
+
+brand_data <- separate(brand_data, col = Product.code...number, into = c("product_code", "product_number"))
+
+brand_data$product_number <- as.integer(brand_data$product_number)
+
+glimpse(brand_data)
+```
+
+
+### 4. Add product categories
+
+You learn that the product codes actually represent the following product categories:
+p = Smartphone
+v = TV
+x = Laptop
+q = Tablet
+In order to make the data more readable, add a column with the product category for each record.
+
+```{r}
+attach(brand_data)
+unique(product_code)
+
+brand_data <- brand_data[, -8]
+
+brand_data$product_category <- ifelse(brand_data$product_code == "p", "Smartphone", NA)
+
+brand_data$product_category <- ifelse(brand_data$product_code == "v", "TV", brand_data$product_category)
+
+brand_data$product_category <- ifelse(brand_data$product_code == "x", "Laptop", brand_data$product_category) 
+
+brand_data$product_category <- ifelse(brand_data$product_code == "q", "Tablet",   brand_data$product_category)
+
+unique(brand_data$product_category)
+```
+
+
+### 5. Add full address for geocoding
+
+In order to view customer information on map, the addresses need to be in a form that can be easily geocoded. Create a new column full_address that concatenates the three address fields (address, city, country), separated by commas.
+
+```{r}
+brand_data <- unite(brand_data, "full_address", c(address, city, country), sep=", ")
+
+glimpse(brand_data)
+```
+
+### 6. Create dummy variables for company and product category
+Both the company name and product category are categorical variables i.e. they take only a fixed set of values. In order to use them in further analysis you need to create dummy variables. Create dummy binary variables for each of them with the prefix company_ and product_ i.e.
+Add four binary (1 or 0) columns for company: company_philips, company_akzo, company_van_houten and company_unilever
+Add four binary (1 or 0) columns for product category: product_smartphone, product_tv, product_laptop and product_tablet
+
+
+```{r, message=FALSE}
+library(dummies)
+brand_data <- dummy.data.frame(brand_data, names = c("company", "product_category"), sep="_")
+glimpse(brand_data)
+```
+
+### 7. Clean data into refine_clean.csv
+
+```{r}
+write.csv(x = brand_data, file = "refine_clean.csv", row.names = FALSE)
+```
+
