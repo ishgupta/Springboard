@@ -1,0 +1,90 @@
+---
+title: "Exercise 2"
+output: html_document
+---
+
+Work with one of the most popular starter data sets in data science, the Titanic data set. This is a data set that records various attributes of passengers on the Titanic, including who survived and who didn’t.
+
+Using R, handle missing values in this data set, and create a new data set. 
+
+### 0. Load the data in RStudio
+
+```{r, message=FALSE}
+titanic <- read.csv("titanic_original.csv", header = TRUE, na.strings = "")
+
+library(dplyr)
+glimpse(titanic)
+
+```
+
+### 1. Port of embarkation
+The embarked column has some missing values, which are known to correspond to passengers who actually embarked at Southampton. Find the missing values and replace them with S. (Caution: Sometimes a missing value might be read into R as a blank or empty string.)
+
+```{r, message=FALSE}
+sum(is.na(titanic$embarked))
+
+titanic$embarked[is.na(titanic$embarked)] <- "S"
+
+sum(is.na(titanic$embarked))
+```
+
+### 2. Age
+A lot of the values in the Age column are missing. While there are many ways to fill these missing values, using the mean or median of the rest of the values is quite common in such cases.
+Calculate the mean of the Age column and use that value to populate the missing values.
+Think about other ways you could have populated the missing values in the age column. Why would you pick any of those over the mean (or not)?
+
+```{r, message=FALSE, echo=FALSE}
+boxplot(titanic$age, main = "Variation in Age values before any transformation")
+
+```
+
+
+* Work out NA values in Age:
+```{r}
+titanic$age[titanic$age > 1 & !is.na(titanic$age)] <- round(titanic$age[titanic$age > 1 & !is.na(titanic$age)])
+
+titanic$age[titanic$age < 1 & !is.na(titanic$age)] <- round(titanic$age[titanic$age < 1 & !is.na(titanic$age)], 2)
+
+meanAge <- round(mean(titanic$age, na.rm = TRUE))
+medianAge <- round(median(titanic$age, na.rm = TRUE))
+
+titanic$age[is.na(titanic$age)] <- meanAge
+```
+
+```{r, echo=FALSE}
+boxplot(titanic$age, main="Variation in Age after transformation")
+```
+
+### 3. Lifeboat
+Look at the distribution of passengers in different lifeboats, but as we know, many passengers did not make it to a boat :-( This means that there are a lot of missing values in the boat column. Fill these empty slots with a dummy value e.g. the string 'None' or 'NA'
+
+```{r, message=FALSE}
+
+summary(titanic$boat)
+sum(is.na(titanic$boat))
+
+```
+We already have all the empty values taken care of as NAs since, we marked them while reading the csv.
+
+
+
+### 4. Cabin
+Many passengers don’t have a cabin number associated with them.
+Does it make sense to fill missing cabin numbers with a value?
+What does a missing value here mean?
+You have a hunch that the fact that the cabin number is missing might be a useful indicator of survival. Create a new column has_cabin_number which has 1 if there is a cabin number, and 0 otherwise.
+
+```{r, message=FALSE}
+sum(is.na(titanic$cabin))
+
+has_cabin_number <- ifelse(is.na(titanic$cabin), 0, 1)
+titanic$has_cabin_number <- has_cabin_number
+
+glimpse(titanic)
+```
+
+### Write data to a csv file.
+
+```{r, message = FALSE}
+write.csv(x = titanic, file = "titanic_clean.csv", row.names = FALSE)
+```
