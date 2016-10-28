@@ -1,0 +1,278 @@
+---
+title: "CodeBook"
+author: "Ish Gupta"
+date: "October 26, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Human Activity Recognition Using Smartphones Data Set
+
+Human Activity Recognition database built from the recordings of 30 volunteers in an age group of 19-48 performing activities of daily living (ADL) while carrying a waistmounted smartphone (Samsung Galaxy S II) with embedded inertial sensors.
+
+The daily activities that were recorded includes:
+1. WALKING
+2. WALKING_UPSTAIRS
+3. WALKING_DOWNSTAIRS
+4. SITTING
+5. STANDING
+6. LAYING
+
+Using the smartphone's embedded accelerometer and gyroscope, data was captured for 3axial linear acceleration and 3axial angular velocity at a constant rate of 50Hz.
+
+The experiments were video recorded to label the data manually.
+
+The dataset was then divided into training (70%) and test (30%) data set.
+
+The sensor signals (accelerometer and gyroscope) were preprocessed
+by applying noise filters and then sampled in fixedwidth
+sliding windows of 2.56 sec and 50% overlap (128 readings/window). The sensor acceleration signal, which has
+gravitational and body motion components, was separated using a Butterworth lowpass
+filter into body acceleration and
+gravity. The gravitational force is assumed to have only low frequency components, therefore a filter with 0.3 Hz cutoff
+frequency was used. From each window, a vector of features was obtained by calculating variables from the time and
+frequency domain.
+
+For each record data provides:
+* Triaxial acceleration from the accelerometer (total acceleration) and the estimated body acceleration.
+* Triaxial Angular velocity from the gyroscope. 
+* A 561-feature vector with time and frequency domain variables. 
+* Its activity label. 
+* An identifier of the subject who carried out the experiment.  
+
+#### features_info.txt shows information about the variables used on the feature vector.
+
+The features selected for this database come from the accelerometer and [gyroscope](https://www.youtube.com/watch?v=cquvA_IpEsA) 3-axial raw signals tAcc-XYZ and tGyro-XYZ. These [time domain](https://en.wikipedia.org/wiki/Time_domain) signals (prefix 't' to denote time) were captured at a constant rate of 50 Hz.
+
+*accelerometer: an instrument for measuring the acceleration of a moving or vibrating body.*
+
+*gyroscope: A gyroscope is a device that uses Earth’s gravity to help determine* *orientation. Its design consists of a freely-rotating disk called a rotor,* *mounted onto a spinning axis in the center of a larger and more stable wheel. As* *the axis turns, the rotor remains stationary to indicate the central* *gravitational pull, and thus which way is “down.*
+
+The functioning of Accelerometer and Gyroscope can be understood by referring [this](http://www.livescience.com/40103-accelerometer-vs-gyroscope.html) link.
+
+See [difference](https://www.researchgate.net/post/What_is_the_difference_between_Time_domain_and_frequency_domain10) between Accelerometer and Gyroscope. 
+
+The data collected was then filtered for Noise by using a median filter and a 3rd order low pass Butterworth filter with a corner frequency of 20 Hz.
+
+Similarly, the acceleration signal was then separated into body and gravity acceleration signals (tBodyAcc-XYZ and tGravityAcc-XYZ) using another low pass Butterworth filter with a corner frequency of 0.3 Hz. 
+
+Subsequently, the body linear acceleration and angular velocity were derived in time to obtain Jerk signals (tBodyAccJerk-XYZ and tBodyGyroJerk-XYZ). Also the magnitude of these three-dimensional signals were calculated using the Euclidean norm (tBodyAccMag, tGravityAccMag, tBodyAccJerkMag, tBodyGyroMag, tBodyGyroJerkMag). 
+
+Finally a Fast Fourier Transform (FFT) was applied to some of these frequency domain signals producing fBodyAcc-XYZ, fBodyAccJerk-XYZ, fBodyGyro-XYZ, fBodyAccJerkMag, fBodyGyroMag, fBodyGyroJerkMag.  
+
+
+## Measurements of Accelerometer and the Gyroscope:
+
+```{r, message=FALSE, echo=FALSE}
+library(dplyr)
+library(tidyr)
+```
+
+```{r, message=FALSE}
+features <- readLines("UCI HAR Dataset/features.txt")
+head(features)
+tail(features)
+```
+
+
+#### The time domain signals measurements break into 265 of 561 features listed in the "features.txt", where features are below measurements of the Body Acceleration, Gravity Acceleration, Body Acceleration Jerk, Body Gyro, Body Gyro Jerk, across 3 axis, X, Y and Z:
+
+* minimum[x, y, z]
+* maximum[x, y, z]
+* mean[x, y, z]
+* standard deviation[x, y, z]
+* mean absolute deviation[x, y, z]
+* sma
+* energy[x, y, z]
+* Inter Quartile Range[x, y, z]
+* entropy[x, y, z]
+* arCoeff[1:4]
+* correlation[ (X,Y), (Y,Z), (Z,X)]
+
+Below fields have measurements of min, max, mean, std, sma, energy, iqr, entropy, arCoeff[1:4]:
+
+* BodyAccMag
+* GravityAccMag
+* BodyAccJerkMag
+* BodyGyroMag
+* BodyGyroJerkMag
+
+#### The frequency domain signals constitute 289 of 561 of the below mentioned measurements of parameters- BodyAcc, BodyAccJerk, Body Gyro. 
+
+* minimum[x, y, z]
+* maximum[x, y, z]
+* mean[x, y, z]
+* standard deviation[x, y, z]
+* mean absolute deviation[x, y, z]
+* sma
+* energy[x, y, z]
+* Inter Quartile Range[x, y, z]
+* entropy[x, y, z]
+* maxInds[x, y, z]
+* meanFreq[x, y, z]
+* skewness[x, y, z]
+* kurtosis[x, y, z]
+* bandsEnergy[(1, 8), (9, 16), (17, 24), (25, 32), (33, 40), (41, 48), (49, 56), (57, 64), (1, 24), (25, 48)] for X, Y, Z
+
+Below fields have measurements of min, max, mean, std, sma, energy, iqr, entropy, maxInds, meanFreq, skewness, kurtosis, :
+
+* BodyAccMag
+* BodyBodyAccJerkMag
+* BodyBodyGyroMag
+* BodyBodyGyroJerkMag
+
+
+#### The rest of the 7 measurements are as below:
+
+* angle(tBodyAccMean,gravity)
+* angle(tBodyAccJerkMean,gravityMean)
+* angle(tBodyGyroMean,gravityMean)
+* angle(tBodyGyroJerkMean,gravityMean)
+* angle(X,gravityMean)
+* angle(Y,gravityMean)
+* angle(Z,gravityMean)
+
+
+### Training and Test sets of data:
+
+Assess activities, and Features: 
+
+```{r}
+activities <- read.table("UCI HAR Dataset/activity_labels.txt", row.names = NULL)
+dim(activities)
+names(activities) <- c("activityId", "activity")
+activities <- spread(activities, activityId, activity)
+activities <- as.character(activities)
+glimpse(activities)
+
+features <- read.table("UCI HAR Dataset/features.txt")
+dim(features)
+names(features) <- c("featureId", "feature")
+glimpse(features)
+```
+
+
+Clean train and test data:
+```{r, message=FALSE}
+library(data.table)
+library(tidyr)
+
+train_data <- readLines("UCI HAR Dataset/train/X_train.txt")
+train_data <- gsub("  ", " ", train_data)
+cat(train_data, file = "UCI HAR Dataset/train/X_train_clean.txt", sep = "\n")
+
+train_x <- read.table("UCI HAR Dataset/train/X_train_clean.txt", sep = " ", row.names = NULL)
+dim(train_x)
+
+test_data <- readLines("UCI HAR Dataset/test/X_test.txt")
+test_data <- gsub("  ", " ", test_data)
+cat(test_data, file = "UCI HAR Dataset/test/X_test_clean.txt", sep = "\n")
+                     
+test_x <- read.table("UCI HAR Dataset/test/X_test_clean.txt", sep = " ", row.names = NULL)
+dim(test_x)
+
+```
+
+Remove NA column, Append Measurements, Activties, and Subjects to train data:
+```{r, message=FALSE}
+sum(!is.na(train_x[, 1]))
+train_x <- train_x[, -1]
+
+featureNames <- make.names(features$feature)
+
+names(train_x) <- featureNames
+dim(train_x)
+
+train_activities <- read.table("UCI HAR Dataset/train/y_train.txt")
+names(train_activities) <- "activityId"
+dim(train_activities)
+
+activities_list <- c("1" = "WALKING", "2" = "WALKING_UPSTAIRS", "3" = "WALKING_DOWNSTAIRS", "4" = "SITTING", "5" = "STANDING", "6" = "LAYING")
+
+train_activities$activity <- activities_list[train_activities$activityId]
+dim(train_activities)
+
+train_x$ActivityLabel <- train_activities$activityId
+train_x$ActivityName <- train_activities$activity
+dim(train_x)
+
+
+subjects_train <- read.table("UCI HAR Dataset/train/subject_train.txt")
+table(subjects_train)
+
+train_x$subject <- subjects_train$V1
+dim(train_x)
+
+glimpse(train_x)
+```
+
+Remove NA column, Append  Measurements and Activties to test data:
+```{r, message=FALSE}
+dim(test_x)
+sum(!is.na(test_x[, 1]))
+test_x <- test_x[, -1]
+
+names(test_x) <- featureNames
+dim(test_x)
+
+test_activities <- read.table("UCI HAR Dataset/test/y_test.txt")
+dim(test_activities)
+names(test_activities) <- "activityId"
+test_activities$activity <- activities_list[test_activities$activityId]
+dim(test_activities)
+
+test_x$ActivityLabel <- test_activities$activityId
+test_x$ActivityName <- test_activities$activity
+dim(test_x)
+
+subjects_test <- read.table("UCI HAR Dataset/test/subject_test.txt")
+dim(subjects_test)
+
+test_x$subject <- subjects_test$V1
+dim(test_x)
+
+```
+
+### 1. Merges the training and the test sets to create one data set.
+2. Extracts columns containing mean and standard deviation for each measurement (Hint: Since some feature/column names are repeated, you may need to use the make.names() function in R)
+3. Creates variables called ActivityLabel and ActivityName that label all observations with the corresponding activity labels and names respectively
+
+```{r, message=FALSE}
+dim(train_x)
+dim(test_x)
+
+setdiff(names(train_x), names(test_x))
+
+row_names <- rownames(test_x)
+row_names <- as.character(as.integer(row_names) + length(rownames(train_x)))
+rownames(test_x) <- row_names
+
+#complete_data <- bind_rows(train_x, test_x)
+library(gtools)
+complete_data <- smartbind(train_x, test_x)
+
+dim(complete_data)
+
+complete_data %>% group_by(subject, ActivityLabel) %>%  summarise_each(1:561, funs = ("mean"))
+
+complete_data[duplicated(names(complete_data))]
+
+
+requiredCols <- names(complete_data)[!names(complete_data) %in% c("ActivityLabel", "ActivityName", "subject")]
+
+requiredColIndexes <- which(!names(complete_data) %in% c("ActivityLabel", "ActivityName", "subject"))
+
+newNames <- paste("avg_", requiredCols)
+
+tidy_data <- complete_data  %>% group_by(subject, ActivityLabel, ActivityName)  %>% summarise_each(requiredColIndexes, funs = c("mean"), vars= requiredColIndexes)
+
+requiredCols_string <- paste("avg_", requiredCols)
+requiredCols_string = append(requiredCols_string, names(tidy_data)[1:3], after = 0)
+names(tidy_data) <- requiredCols_string
+
+write_csv(tidy_data, "tidy.csv")
+
+```
